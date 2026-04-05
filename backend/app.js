@@ -1,5 +1,3 @@
-// backend/app.js
-
 const express = require("express");
 const cors = require("cors");
 
@@ -14,7 +12,18 @@ app.get("/", (req, res) => {
   res.send("CampusSphere API is running...");
 });
 
-// ✅ Auth Routes
+// Auth routes
 app.use("/api/v1/auth", require("./routes/authRoutes"));
 
-module.exports = app;
+// TEMP protected route
+const { protect } = require("./middleware/authMiddleware");
+
+app.get("/api/v1/protected", protect, (req, res) => {
+  res.json({
+    success: true,
+    message: "You accessed a protected route",
+    user: req.user,
+  });
+});
+
+module.exports = app; // ✅ THIS MUST EXIST

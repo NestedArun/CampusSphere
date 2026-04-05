@@ -70,7 +70,7 @@ exports.registerUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Full Error:", error);
+    console.error("Register Error:", error.message);
 
     res.status(500).json({
       success: false,
@@ -81,7 +81,6 @@ exports.registerUser = async (req, res) => {
 
 // 🔑 LOGIN USER
 exports.loginUser = async (req, res) => {
-  console.log("LOGIN API HIT");
   try {
     const { email, password } = req.body;
 
@@ -96,10 +95,7 @@ exports.loginUser = async (req, res) => {
     // 2. Find user (include password explicitly)
     const user = await User.findOne({ email }).select("+password");
 
-    console.log("User Found:", user ? "YES" : "NO");
-    console.log("Entered Password:", password);
-    console.log("Stored Hashed Password:", user?.password);
-
+    
     if (!user) {
       return res.status(400).json({
         success: false,
