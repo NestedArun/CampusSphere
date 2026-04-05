@@ -1,3 +1,4 @@
+// backend/app.js
 
 const express = require("express");
 const cors = require("cors");
@@ -13,7 +14,7 @@ app.get("/", (req, res) => {
   res.send("CampusSphere API is running...");
 });
 
-// Routes (add later)
-// app.use("/api/v1/auth", require("./routes/authRoutes"));
+// ✅ Auth Routes
+app.use("/api/v1/auth", require("./routes/authRoutes"));
 
 module.exports = app;
