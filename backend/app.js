@@ -16,6 +16,7 @@ app.get("/", (req, res) => {
 // Auth routes
 app.use("/api/v1/auth", require("./routes/authRoutes"));
 app.use("/api/v1/lost-found", require("./routes/lostFoundRoutes"));
+app.use("/api/v1/complaints", require("./routes/complaintRoutes"));
 
 // TEMP protected route
 const { protect } = require("./middleware/authMiddleware");
