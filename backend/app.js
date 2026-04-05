@@ -18,6 +18,7 @@ app.use("/api/v1/auth", require("./routes/authRoutes"));
 app.use("/api/v1/lost-found", require("./routes/lostFoundRoutes"));
 app.use("/api/v1/complaints", require("./routes/complaintRoutes"));
 app.use("/api/v1/events", require("./routes/eventRoutes"));
+app.use("/api/v1/announcements", require("./routes/announcementRoutes"));
 
 // TEMP protected route
 const { protect } = require("./middleware/authMiddleware");
