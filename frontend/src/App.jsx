@@ -5,6 +5,7 @@ import Register from "./pages/Auth/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LostFound from "./pages/LostFound/LostFound";
+import Complaints from "./pages/Complaints/Complaints";
 
 function App() {
   return (
@@ -33,7 +34,17 @@ function App() {
           </ProtectedRoute>
         }
         />
-        
+
+        {/* Complaints */}
+        <Route
+          path="/complaints"
+          element={
+            <ProtectedRoute>
+              <Complaints />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );
