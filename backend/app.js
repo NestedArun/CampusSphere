@@ -17,6 +17,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth", require("./routes/authRoutes"));
 app.use("/api/v1/lost-found", require("./routes/lostFoundRoutes"));
 app.use("/api/v1/complaints", require("./routes/complaintRoutes"));
+app.use("/api/v1/events", require("./routes/eventRoutes"));
 
 // TEMP protected route
 const { protect } = require("./middleware/authMiddleware");
@@ -29,5 +30,8 @@ app.get("/api/v1/protected", protect, (req, res) => {
   });
 });
 
+app.use("/api/v1/events", (req, res) => {
+  res.send("Events working");
+});
 
 module.exports = app; // ✅ THIS MUST EXIST
