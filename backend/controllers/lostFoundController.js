@@ -7,7 +7,6 @@ exports.createItem = async (req, res) => {
   try {
     const { title, description, category, location, type } = req.body;
 
-    // Validate input
     if (!title || !description || !location || !type) {
       return res.status(400).json({
         success: false,
@@ -15,28 +14,25 @@ exports.createItem = async (req, res) => {
       });
     }
 
-    // Validate type
     if (!["lost", "found"].includes(type)) {
       return res.status(400).json({
         success: false,
-        message: "Type must be either 'lost' or 'found'",
+        message: "Type must be 'lost' or 'found'",
       });
     }
 
-    // Create item
-    const item = await LostItem.create({
+    const item = await require("../models/LostItem").create({
       title,
       description,
       category,
       location,
       type,
-      image: req.file ? req.file.path : "", // for later (multer)
-      reportedBy: req.user._id, // from JWT middleware
+      reportedBy: req.user._id,
     });
 
     res.status(201).json({
       success: true,
-      message: "Item reported successfully",
+      message: "Item created successfully",
       item,
     });
 
@@ -49,7 +45,6 @@ exports.createItem = async (req, res) => {
     });
   }
 };
-
 
 
 // 📋 GET ALL ITEMS
@@ -66,7 +61,7 @@ exports.getAllItems = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Get Items Error:", error.message);
+    console.error("Get Items Error:", error);
 
     res.status(500).json({
       success: false,
@@ -118,7 +113,7 @@ exports.claimItem = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Claim Item Error:", error.message);
+    console.error("Claim Item Error:", error);
 
     res.status(500).json({
       success: false,
@@ -162,7 +157,7 @@ exports.closeItem = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Close Item Error:", error.message);
+    console.error("Close Item Error:", error);
 
     res.status(500).json({
       success: false,

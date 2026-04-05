@@ -23,4 +23,8 @@ router.put("/claim/:id", protect, claimItem);
 // CLOSE ITEM
 router.put("/close/:id", protect, closeItem);
 
+//file uploads
+router.post("/", protect, createItem);
+
+
 module.exports = router;
