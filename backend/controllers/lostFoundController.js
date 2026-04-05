@@ -74,3 +74,99 @@ exports.getAllItems = async (req, res) => {
     });
   }
 };
+
+// 🙋 CLAIM ITEM
+exports.claimItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const item = await LostItem.findById(id);
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found",
+      });
+    }
+
+    // Prevent claiming own item
+    if (item.reportedBy.toString() === req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot claim your own item",
+      });
+    }
+
+    // Prevent duplicate claim
+    if (item.status === "claimed") {
+      return res.status(400).json({
+        success: false,
+        message: "Item already claimed",
+      });
+    }
+
+    // Update item
+    item.status = "claimed";
+    item.claimedBy = req.user._id;
+
+    await item.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Item claimed successfully",
+      item,
+    });
+
+  } catch (error) {
+    console.error("Claim Item Error:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+// 🔒 CLOSE ITEM
+exports.closeItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const item = await LostItem.findById(id);
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found",
+      });
+    }
+
+    // Only owner or admin can close
+    if (
+      item.reportedBy.toString() !== req.user._id.toString() &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to close this item",
+      });
+    }
+
+    item.status = "closed";
+    await item.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Item closed successfully",
+      item,
+    });
+
+  } catch (error) {
+    console.error("Close Item Error:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
