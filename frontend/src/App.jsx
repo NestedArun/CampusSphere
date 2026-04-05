@@ -8,6 +8,7 @@ import LostFound from "./pages/LostFound/LostFound";
 import Complaints from "./pages/Complaints/Complaints";
 import Events from "./pages/Events/Events";
 import Announcements from "./pages/Announcements/Announcements";
+import Booking from "./pages/Booking/Booking";
 
 function App() {
   return (
@@ -65,6 +66,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Booking */}
+        <Route
+          path="/booking"
+          element={
+            <ProtectedRoute>
+              <Booking />
+            </ProtectedRoute>
+          }
+        />
+        
       </Routes>
     </BrowserRouter>
   );
