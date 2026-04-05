@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import LostFound from "./pages/LostFound/LostFound";
 import Complaints from "./pages/Complaints/Complaints";
+import Events from "./pages/Events/Events";
+import Announcements from "./pages/Announcements/Announcements";
 
 function App() {
   return (
@@ -24,6 +26,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+          {/* Announcements */}
+          <Route
+            path="/announcements"
+            element={
+              <ProtectedRoute>
+                <Announcements />
+              </ProtectedRoute>
+            }
+          />
 
         {/* Lost & Found */}
         <Route
@@ -44,7 +56,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        {/* Events */}
+        <Route
+          path="/events"
+          element={
+            <ProtectedRoute>
+              <Events />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
