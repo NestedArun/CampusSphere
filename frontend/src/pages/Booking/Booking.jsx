@@ -45,7 +45,7 @@ function Booking() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-background min-h-screen">
       <h1 className="text-2xl font-bold mb-4">
         Facility Booking
       </h1>
@@ -87,7 +87,7 @@ function Booking() {
           onChange={handleChange}
         />
 
-        <button className="bg-blue-500 text-white px-4 py-2">
+        <button className="bg-accent hover:bg-highlight text-black p-2 rounded-lg transition">
           Book
         </button>
       </form>

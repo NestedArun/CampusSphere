@@ -24,7 +24,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-background min-h-screen">
 
       {/* HEADER */}
       <div className="flex justify-between items-center">
@@ -37,7 +37,7 @@ function Dashboard() {
           {/* LOGOUT BUTTON */}
           <button
             onClick={logout}
-            className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-100 transition"
+            className="bg-accent hover:bg-highlight text-black px-4 py-2 rounded-lg transition"
           >
             Logout
           </button>
@@ -89,7 +89,7 @@ function Dashboard() {
 
               <button
                 onClick={logout}
-                className="mt-5 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded transition"
+                className="bg-accent hover:bg-highlight text-black py-2 rounded transition w-full"
               >
                 Logout
               </button>

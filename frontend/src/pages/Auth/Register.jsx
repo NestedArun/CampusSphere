@@ -27,7 +27,7 @@ function Register() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <form className="p-6 bg-white shadow-md rounded w-80" onSubmit={handleSubmit}>
+      <form className="p-6 bg-primary border border-soft/20 rounded-2xl w-80" onSubmit={handleSubmit}>
         <h2 className="text-xl font-bold mb-4">Register</h2>
 
         <input
@@ -52,7 +52,7 @@ function Register() {
           onChange={handleChange}
         />
 
-        <button className="w-full bg-green-500 text-white p-2">
+        <button className="bg-accent hover:bg-highlight text-black p-2 rounded-lg transition">
           Register
         </button>
 

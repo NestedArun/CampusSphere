@@ -66,7 +66,7 @@ function Events() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-background min-h-screen">
       <h1 className="text-2xl font-bold mb-4">Events</h1>
 
       {/* ADMIN FORM */}
@@ -100,7 +100,7 @@ function Events() {
             onChange={handleChange}
           />
 
-          <button className="bg-blue-500 text-white px-4 py-2">
+          <button className="bg-accent hover:bg-highlight text-black px-4 py-2 rounded-lg transition">
             Create Event
           </button>
         </form>

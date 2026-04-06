@@ -67,7 +67,7 @@ function Complaints() {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-background min-h-screen text-white">
       <h1 className="text-2xl font-bold mb-4">Complaints</h1>
 
       {/* FORM */}

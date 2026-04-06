@@ -29,10 +29,10 @@ function Login() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center min-h-screen bg-background text-white">
       <form
         onSubmit={handleSubmit}
-        className="p-6 bg-white shadow-md rounded w-80"
+        className="p-6 bg-primary border border-soft/20 rounded-2xl w-80"
       >
         <h2 className="text-xl font-bold mb-4">Login</h2>
 
@@ -52,10 +52,10 @@ function Login() {
           onChange={handleChange}
         />
 
-        <button className="w-full bg-blue-500 text-white p-2">
+        <button className="bg-accent hover:bg-highlight text-black p-2 rounded-lg transition">
           Login
         </button>
-        
+
         <p className="mt-3 text-sm text-center">
           Don't have an account?{" "}
           <Link to="/register" className="text-blue-500 underline">

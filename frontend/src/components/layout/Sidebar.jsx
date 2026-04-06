@@ -22,7 +22,7 @@ function Sidebar() {
   const location = useLocation();
 
   return (
-    <div className="w-64 h-screen border-r bg-white p-4 flex flex-col">
+    <div className="w-64 h-screen bg-primary p-4 flex flex-col border-r border-soft/20">
       <h1 className="text-xl font-bold mb-6">CampusSphere</h1>
 
       <div className="space-y-2">
