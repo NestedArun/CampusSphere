@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { registerUser } from "../../services/authService";
+import { Link } from "react-router-dom";
 
 function Register() {
   const [form, setForm] = useState({
@@ -54,6 +55,14 @@ function Register() {
         <button className="w-full bg-green-500 text-white p-2">
           Register
         </button>
+
+        <p className="mt-3 text-sm text-center">
+          Already have an account?{" "}
+          <Link to="/" className="text-blue-500 underline">
+            Login
+          </Link>
+        </p>
+
       </form>
     </div>
   );

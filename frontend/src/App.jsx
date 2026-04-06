@@ -9,76 +9,87 @@ import Complaints from "./pages/Complaints/Complaints";
 import Events from "./pages/Events/Events";
 import Announcements from "./pages/Announcements/Announcements";
 import Booking from "./pages/Booking/Booking";
+import PublicRoute from "./routes/PublicRoute";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+  <Routes>
+    {/* PUBLIC (BLOCK IF LOGGED IN) */}
+    <Route
+      path="/"
+      element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      }
+    />
 
-        {/* Protected */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+    <Route
+      path="/register"
+      element={
+        <PublicRoute>
+          <Register />
+        </PublicRoute>
+      }
+    />
 
-          {/* Announcements */}
-          <Route
-            path="/announcements"
-            element={
-              <ProtectedRoute>
-                <Announcements />
-              </ProtectedRoute>
-            }
-          />
+    {/* PROTECTED */}
+    <Route
+      path="/dashboard"
+      element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      }
+    />
 
-        {/* Lost & Found */}
-        <Route
-         path="/lost-found"
-         element={
-          <ProtectedRoute>
+    <Route
+      path="/lost-found"
+      element={
+        <ProtectedRoute>
           <LostFound />
-          </ProtectedRoute>
-        }
-        />
+        </ProtectedRoute>
+      }
+    />
 
-        {/* Complaints */}
-        <Route
-          path="/complaints"
-          element={
-            <ProtectedRoute>
-              <Complaints />
-            </ProtectedRoute>
-          }
-        />
-        {/* Events */}
-        <Route
-          path="/events"
-          element={
-            <ProtectedRoute>
-              <Events />
-            </ProtectedRoute>
-          }
-        />
+    <Route
+      path="/complaints"
+      element={
+        <ProtectedRoute>
+          <Complaints />
+        </ProtectedRoute>
+      }
+    />
 
-        {/* Booking */}
-        <Route
-          path="/booking"
-          element={
-            <ProtectedRoute>
-              <Booking />
-            </ProtectedRoute>
-          }
-        />
-        
-      </Routes>
-    </BrowserRouter>
+    <Route
+      path="/events"
+      element={
+        <ProtectedRoute>
+          <Events />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/announcements"
+      element={
+        <ProtectedRoute>
+          <Announcements />
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path="/booking"
+      element={
+        <ProtectedRoute>
+          <Booking />
+        </ProtectedRoute>
+      }
+    />
+  </Routes>
+</BrowserRouter>
   );
 }
 
