@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import AppLayout from "./components/layout/AppLayout";
+
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -39,7 +41,7 @@ function App() {
       path="/dashboard"
       element={
         <ProtectedRoute>
-          <Dashboard />
+          <AppLayout><Dashboard /></AppLayout>
         </ProtectedRoute>
       }
     />
@@ -48,7 +50,7 @@ function App() {
       path="/lost-found"
       element={
         <ProtectedRoute>
-          <LostFound />
+          <AppLayout><LostFound /></AppLayout>
         </ProtectedRoute>
       }
     />
@@ -57,7 +59,7 @@ function App() {
       path="/complaints"
       element={
         <ProtectedRoute>
-          <Complaints />
+          <AppLayout><Complaints /></AppLayout>
         </ProtectedRoute>
       }
     />
@@ -66,7 +68,7 @@ function App() {
       path="/events"
       element={
         <ProtectedRoute>
-          <Events />
+          <AppLayout><Events /></AppLayout>
         </ProtectedRoute>
       }
     />
@@ -75,7 +77,7 @@ function App() {
       path="/announcements"
       element={
         <ProtectedRoute>
-          <Announcements />
+          <AppLayout><Announcements /></AppLayout>
         </ProtectedRoute>
       }
     />
@@ -84,7 +86,7 @@ function App() {
       path="/booking"
       element={
         <ProtectedRoute>
-          <Booking />
+          <AppLayout><Booking /></AppLayout>
         </ProtectedRoute>
       }
     />
