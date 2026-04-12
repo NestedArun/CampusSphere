@@ -23,6 +23,7 @@ app.use("/api/v1/lost-found",    require("./routes/lostFoundRoutes"));
 app.use("/api/v1/notifications", require("./routes/notificationRoutes"));
 app.use("/api/v1/campus-map",    require("./routes/campusMapRoutes"));
 app.use("/api/v1/bus-routes",    require("./routes/busRoutes"));
+app.use("/api/v1/notes", require("./routes/notesRoutes"));
 
 app.use((req, res) => res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found.` }));
 app.use((err, req, res, next) => {
