@@ -1,0 +1,13 @@
+{
+  "name": "campussphere",
+  "version": "2.0.0",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently --kill-others-on-fail --names \"API,UI\" --prefix-colors \"cyan,magenta\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start": "concurrently --kill-others-on-fail --names \"API,UI\" --prefix-colors \"cyan,magenta\" \"npm start --prefix backend\" \"npm run dev --prefix frontend\"",
+    "setup": "npm install && npm run install:all"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
