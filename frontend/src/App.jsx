@@ -13,7 +13,6 @@ import Events        from "./pages/Events/Events";
 import Announcements from "./pages/Announcements/Announcements";
 import Booking       from "./pages/Booking/Booking";
 import CampusMap     from "./pages/CampusMap/CampusMap";
-import BusTracker    from "./pages/BusTracker/BusTracker";
 import Attendance    from "./pages/Academic/Attendance";
 import Marks         from "./pages/Academic/Marks";
 import Notes         from "./pages/Academic/Notes";
@@ -38,7 +37,7 @@ export default function App() {
           <Route path="/announcements" element={<AppRoute><Announcements /></AppRoute>} />
           <Route path="/booking"       element={<AppRoute><Booking /></AppRoute>} />
           <Route path="/campus-map"    element={<AppRoute><CampusMap /></AppRoute>} />
-          <Route path="/bus-tracker"   element={<AppRoute><BusTracker /></AppRoute>} />
+          <Route path="/bus-tracker" element={<AppRoute><CampusMap /></AppRoute>} />
           <Route path="/attendance"    element={<AppRoute><Attendance /></AppRoute>} />
           <Route path="/marks"         element={<AppRoute><Marks /></AppRoute>} />
           <Route path="/notes"         element={<AppRoute><Notes /></AppRoute>} />

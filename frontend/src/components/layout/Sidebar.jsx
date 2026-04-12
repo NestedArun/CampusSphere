@@ -29,8 +29,7 @@ const NAV_SECTIONS = [
       { name: "Lost & Found",  path: "/lost-found",   icon: Package },
       { name: "Complaints",    path: "/complaints",   icon: AlertCircle },
       { name: "Room Booking",  path: "/booking",      icon: Building },
-      { name: "Campus Map",    path: "/campus-map",   icon: MapPin },
-      { name: "Bus Tracker",   path: "/bus-tracker",  icon: Bus },
+      { name:"Map & Bus Tracker", path:"/campus-map", icon:MapPin },
     ],
   },
   {
