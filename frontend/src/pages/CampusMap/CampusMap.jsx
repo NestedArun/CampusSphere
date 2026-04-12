@@ -7,7 +7,7 @@ const VIT = [12.9698, 79.1559];
 
 const CAMPUS_LOCATIONS = [
   { name:"Technology Tower",      code:"TT",  cat:"academic", lat:12.9710, lng:79.1570, desc:"Main academic block with lecture halls", timings:"8AM–8PM", capacity:2000, facilities:["Wi-Fi","AC","Projectors"] },
-  { name:"Senat Junction Tower",  code:"SJT", cat:"academic", lat:12.9720, lng:79.1560, desc:"Engineering & science departments",      timings:"8AM–8PM", capacity:3000, facilities:["Wi-Fi","Labs","Seminar Halls"] },
+  { name:"Silver Junction Tower",  code:"SJT", cat:"academic", lat:12.9720, lng:79.1560, desc:"Engineering & science departments",      timings:"8AM–8PM", capacity:3000, facilities:["Wi-Fi","Labs","Seminar Halls"] },
   { name:"Computational Lab",     code:"CL",  cat:"lab",      lat:12.9705, lng:79.1548, desc:"Computer labs with 300 PCs",             timings:"24 Hours",capacity:500,  facilities:["300 PCs","Wi-Fi"] },
   { name:"Main Library",          code:"LIB", cat:"academic", lat:12.9715, lng:79.1545, desc:"Central library with digital resources", timings:"8AM–10PM",capacity:800,  facilities:["80k+ Books","Study Rooms"] },
   { name:"Men's Hostel Block A",  code:"MHA", cat:"hostel",   lat:12.9685, lng:79.1565, desc:"On-campus residential — male students", timings:"24 Hours",capacity:400,  facilities:["Wi-Fi","Gym","Laundry"] },
