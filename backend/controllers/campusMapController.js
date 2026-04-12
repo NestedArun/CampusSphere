@@ -38,7 +38,7 @@ exports.seedLocations = async (req, res) => {
 
     const locations = [
       { name: "Technology Tower", code: "TT", category: "academic", description: "Main academic block with lecture halls and faculty offices", gridX: 3, gridY: 2, capacity: 2000, facilities: ["Wi-Fi", "AC", "Projectors"], timings: "8:00 AM – 8:00 PM" },
-      { name: "Senat Junction Tower", code: "SJT", category: "academic", description: "Engineering and science departments", gridX: 5, gridY: 2, capacity: 3000, facilities: ["Wi-Fi", "Labs", "Seminar Halls"], timings: "8:00 AM – 8:00 PM" },
+      { name: "Silver Jubilee Tower", code: "SJT", category: "academic", description: "Engineering and science departments", gridX: 5, gridY: 2, capacity: 3000, facilities: ["Wi-Fi", "Labs", "Seminar Halls"], timings: "8:00 AM – 8:00 PM" },
       { name: "Computational Laboratory", code: "CL", category: "lab", description: "Computer labs with high-speed internet", gridX: 4, gridY: 3, capacity: 500, facilities: ["300 PCs", "24hr Access", "Wi-Fi"], timings: "24 Hours" },
       { name: "Main Library", code: "LIB", category: "academic", description: "Central library with digital resources", gridX: 6, gridY: 2, capacity: 800, facilities: ["80,000+ Books", "Digital Library", "Study Rooms"], timings: "8:00 AM – 10:00 PM" },
       { name: "Men's Hostel Block A", code: "MBA", category: "hostel", description: "On-campus residential block for male students", gridX: 1, gridY: 5, capacity: 400, facilities: ["Wi-Fi", "Gym", "Laundry"], timings: "24 Hours" },
