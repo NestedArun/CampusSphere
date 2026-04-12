@@ -10,7 +10,7 @@ const DEPARTMENTS = ["Computer Science","Electronics","Mechanical","Civil","Math
 
 const gradeOf = (s, max) => {
   const pct = (s/max)*100;
-  return pct>=90?"O":pct>=80?"A+":pct>=70?"A":pct>=60?"B+":pct>=50?"B":"F";
+  return pct>=90?"S":pct>=80?"A+":pct>=70?"A":pct>=60?"B+":pct>=50?"B":"F";
 };
 const gradeColor = (s, max) => {
   const pct = (s/max)*100;

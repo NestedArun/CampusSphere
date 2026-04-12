@@ -5,11 +5,11 @@ import API from "../../services/api";
 
 const SUBJECTS = ["Data Structures","Operating Systems","DBMS","Computer Networks","Software Engineering","Machine Learning"];
 const STUDENTS_MOCK = [
-  { id: "22BCE1001", name: "Aarav Sharma" },
-  { id: "22BCE1002", name: "Priya Nair" },
-  { id: "22BCE1003", name: "Rahul Mehta" },
-  { id: "22BCE1004", name: "Sneha Pillai" },
-  { id: "22BCE1005", name: "Arjun Reddy" },
+  { id: "22BCE1001", name: "Nivetha" },
+  { id: "22BCE1002", name: "Arun" },
+  { id: "22BCE1003", name: "Faraz" },
+  { id: "22BCE1004", name: "Prasaadh" },
+  { id: "22BCE1005", name: "Sharjil" },
 ];
 
 const statusColor = { P:"text-green-400", A:"text-red-400", L:"text-yellow-400" };
