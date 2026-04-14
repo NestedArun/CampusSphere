@@ -83,7 +83,4 @@ sudo apt install default-jdk
 # Windows: install JDK from https://adoptium.net
 ```
 
-### Seed campus map locations (admin only, one-time)
 
-POST http://localhost:8080/api/v1/campus-map/seed
-with Authorization: Bearer <admin_token>
