@@ -66,6 +66,7 @@ export default function Notes() {
         type: n.type,
         uploadedBy: n.uploadedBy?.name || "Unknown",
         date: n.createdAt ? n.createdAt.slice(0, 10) : n.date || "",
+        status: n.status || "ready",
         size: n.size || 0,
         filename: n.filename,
         originalName: n.originalName,
@@ -322,7 +323,14 @@ export default function Notes() {
               {filtered.map((n) => (
                 <tr key={n.id} className="hover:bg-white/[0.03] transition">
                   <td className="px-5 py-3">
-                    <p className="text-white font-medium">{n.title}</p>
+                    <p className="text-white font-medium">
+                      {n.title}{" "}
+                      {n.status === "processing" && (
+                        <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-white/5 text-soft">
+                          Processing
+                        </span>
+                      )}
+                    </p>
                     <p className="text-soft text-xs">{formatBytes(n.size)}</p>
                   </td>
                   <td className="px-5 py-3 text-soft hidden md:table-cell">
