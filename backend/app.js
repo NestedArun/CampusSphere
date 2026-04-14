@@ -30,6 +30,7 @@ app.use("/api/v1/bus-routes",    require("./routes/busRoutes"));
 app.use("/api/v1/notes",         require("./routes/notesRoutes"));
 app.use("/api/v1/exams",         require("./routes/examRoutes"));
 app.use("/api/v1/admin",         require("./routes/adminRoutes"));
+app.use("/api.v1/uploads", express.static("uploads"));
 
 app.use((req, res) => res.status(404).json({ success:false, message:`Route ${req.originalUrl} not found.` }));
 app.use((err, req, res, next) => {
