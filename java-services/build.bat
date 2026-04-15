@@ -1,31 +1,27 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 
 echo === Building CampusSphere Java Services ===
 
-set "SRC=src"
-set "OUT=out"
-set "MAIN=com.campussphere.gateway.ApiGateway"
+set SRC=src
+set OUT=out
+set MAIN=com.campussphere.gateway.ApiGateway
 
-if not exist "%OUT%" mkdir "%OUT%"
+if exist %OUT% rmdir /s /q %OUT%
+mkdir %OUT%
 
-set "SOURCES="
-for /R "%SRC%" %%f in (*.java) do (
-  set "SOURCES=!SOURCES! \"%%f\""
-)
+echo Compiling sources...
 
-echo Compiling: %SOURCES%
+dir /s /b %SRC%\*.java > sources.txt
 
-javac -d "%OUT%" %SOURCES%
+javac -d %OUT% @sources.txt
 if errorlevel 1 (
-  echo Java compilation failed. Ensure a JDK is installed and on PATH.
-  echo If you need Java 21 features, install JDK 21 or run the build from WSL/Git Bash with a compatible JDK.
+  echo Compilation failed
   exit /b %errorlevel%
 )
 
 echo Creating JAR...
-jar --create --file=campussphere-services.jar --main-class=%MAIN% -C "%OUT%" .
 
-echo.
-echo === Build complete: campussphere-services.jar ===
-echo Run with: java -jar campussphere-services.jar
+jar --create --file=campussphere-services.jar --main-class=%MAIN% -C %OUT% .
+
+echo === Build complete ===
