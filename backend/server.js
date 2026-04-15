@@ -1,4 +1,5 @@
 const app = require("./app");
+require("./queues");
 const mongoose = require("mongoose");
 const { deleteOldNotifications } = require("./services/notificationService");
 require("dotenv").config();
