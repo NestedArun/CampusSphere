@@ -153,7 +153,7 @@ public class ApiGateway {
         try {
             String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
             HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
-                .uri(URI.create(BACKEND + ex.getRequestURI()))
+                .uri(URI.create(BACKEND + "/api" + ex.getRequestURI()))
                 .timeout(Duration.ofSeconds(15));
 
             // Forward headers
