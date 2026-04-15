@@ -152,8 +152,17 @@ public class ApiGateway {
         // 4. Proxy to backend
         try {
             String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+
+            String paths = ex.getRequestURI().toString();
+
+            if (!paths.startsWith("/api/v1")) {
+                paths = "/api/v1" + path;
+            }
+
+            String fullUrl = BACKEND + path;
+
             HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
-                .uri(URI.create(BACKEND + "/api/v1" + ex.getRequestURI()))
+                .uri(URI.create(fullUrl))
                 .timeout(Duration.ofSeconds(15));
 
             // Forward headers
