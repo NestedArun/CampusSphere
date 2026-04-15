@@ -153,13 +153,26 @@ public class ApiGateway {
         try {
             String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
 
-            String paths = ex.getRequestURI().toString();
+            String originalPath = ex.getRequestURI().getPath();
+            String query = ex.getRequestURI().getQuery();
 
-            if (!paths.startsWith("/api/v1")) {
-                paths = "/api/v1" + path;
+            // Fix path
+            String fixedPath;
+            if (originalPath.startsWith("/api/v1")) {
+                fixedPath = originalPath;
+            } else {
+                fixedPath = "/api/v1" + originalPath;
             }
 
-            String fullUrl = BACKEND + path;
+            // Add query if exists
+            if (query != null) {
+                fixedPath += "?" + query;
+            }
+
+            String fullUrl = BACKEND + fixedPath;
+
+            System.out.println("FORWARDING TO: " + fullUrl);
+
 
             HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(fullUrl))
