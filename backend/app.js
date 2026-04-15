@@ -14,6 +14,7 @@ app.use(rateLimiter(100, 60000));
 
 app.get("/ping", (req, res) => {
   res.send("Node alive");
+  eventEmitter.emit("ping");
 });
 
 // Serve uploaded files
