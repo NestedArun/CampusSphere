@@ -203,6 +203,7 @@ public class ApiGateway {
             log(method, path, resp.statusCode(), ip, System.currentTimeMillis() - start, "PROXY");
 
         } catch (Exception e) {
+            e.printStackTrace();
             int fc = failures.incrementAndGet();
             lastFailure.set(System.currentTimeMillis());
             if (fc >= CB_THRESHOLD) {
