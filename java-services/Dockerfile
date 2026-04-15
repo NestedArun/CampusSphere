@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 COPY . .
 EXPOSE 8080
