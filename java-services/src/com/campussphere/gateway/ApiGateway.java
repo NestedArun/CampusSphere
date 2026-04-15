@@ -216,11 +216,15 @@ public class ApiGateway {
             }
 
             // Forward response
-            resp.headers().map().forEach((k, v) -> {
-                if (!k.startsWith(":") && !k.equalsIgnoreCase("Transfer-Encoding")) {
-                    ex.getResponseHeaders().set(k, String.join(",", v));
-                }
-            });
+           resp.headers().map().forEach((k, v) -> {
+            if (!k.startsWith(":")
+                && !k.equalsIgnoreCase("Transfer-Encoding")
+                && !k.equalsIgnoreCase("Content-Encoding")   
+                && !k.equalsIgnoreCase("Content-Length")) {  
+
+                ex.getResponseHeaders().set(k, String.join(",", v));
+            }
+        });
             respond(ex, resp.statusCode(), resp.body());
             log(method, path, resp.statusCode(), ip, System.currentTimeMillis() - start, "PROXY");
 
