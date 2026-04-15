@@ -12,6 +12,10 @@ app.use(express.urlencoded({ extended:true }));
 app.use(requestLogger);
 app.use(rateLimiter(100, 60000));
 
+app.get("/ping", (req, res) => {
+  res.send("Node alive");
+});
+
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
