@@ -6,7 +6,22 @@ const rateLimiter   = require("./utils/rateLimiter");
 const logger        = require("./utils/logger");
 
 const app = express();
-app.use(cors());
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["http://localhost:5173", "http://localhost:3000"];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true); // allow curl / server-to-server
+    if (
+      ALLOWED_ORIGINS.some((o) => origin.startsWith(o)) ||
+      origin.endsWith(".railway.app") ||
+      origin.endsWith(".vercel.app")
+    ) return cb(null, true);
+    cb(new Error("CORS: origin not allowed"));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended:true }));
 app.use(requestLogger);

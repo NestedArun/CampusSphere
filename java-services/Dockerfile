@@ -1,5 +1,5 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY . .
-EXPOSE 8080
-CMD ["java", "-jar", "campussphere-services.jar"]
+COPY campussphere-services.jar app.jar
+RUN mkdir -p data
+CMD ["java", "-Ddata.dir=./data", "-jar", "app.jar"]
