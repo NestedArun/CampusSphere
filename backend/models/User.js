@@ -37,9 +37,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
-userSchema.index({ studentId: 1 }, { sparse: true });
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;

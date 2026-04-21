@@ -16,10 +16,13 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // Only auto-logout if we receive 401 on routes OTHER than login
+    if (error.response?.status === 401 && !error.config?.url?.includes("/login")) {
       localStorage.removeItem("cs_token");
       localStorage.removeItem("cs_user");
-      window.location.href = "/";
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
+      }
     }
     return Promise.reject(error);
   }

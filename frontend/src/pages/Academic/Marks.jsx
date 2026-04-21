@@ -8,6 +8,7 @@ import {
   Save,
   Edit3,
   Check,
+  Download,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -248,6 +249,57 @@ function TeacherMarks() {
     if (activeExam?._id === examId) setActiveExam(null);
   };
 
+  const downloadCSV = () => {
+    if (!activeExam) return;
+    const { subject, department, sections } = activeExam;
+
+    // Collect all unique students (by _id) across all sections
+    const studentMap = {};
+    sections.forEach((sec) => {
+      sec.marks.forEach((m) => {
+        const id = m.student?._id || m.student;
+        if (id && !studentMap[id]) {
+          studentMap[id] = {
+            name: m.student?.name || "—",
+            studentId: m.student?.studentId || "—",
+          };
+        }
+      });
+    });
+
+    const students = Object.entries(studentMap); // [[_id, {name, studentId}]]
+
+    // Header row
+    const secHeaders = sections.map((s) => [`${s.title} (/${s.maxScore})`, `${s.title} Grade`]).flat();
+    const headers = ["Student Name", "Student ID", ...secHeaders, "Total Score", "Max Total", "Overall Grade"];
+
+    // Data rows
+    const rows = students.map(([sid, info]) => {
+      let total = 0;
+      let maxTotal = 0;
+      const sectionCols = sections.map((sec) => {
+        const entry = sec.marks.find((m) => (m.student?._id || m.student)?.toString() === sid);
+        const score = entry?.score ?? 0;
+        total += score;
+        maxTotal += sec.maxScore;
+        return [score, gradeOf(score, sec.maxScore)];
+      }).flat();
+      return [info.name, info.studentId, ...sectionCols, total, maxTotal, gradeOf(total, maxTotal)];
+    });
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${subject}_${department}_marks.csv`.replace(/\s+/g, "_");
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex gap-4 min-h-0">
       {/* Exam list */}
@@ -314,12 +366,21 @@ function TeacherMarks() {
                 </h2>
                 <p className="text-soft text-xs">{activeExam.department}</p>
               </div>
-              <button
-                onClick={() => setShowNewSec(true)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-soft hover:text-white hover:border-accent/30 text-xs transition"
-              >
-                <Plus size={13} /> Add Section
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={downloadCSV}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-soft hover:text-white hover:border-accent/30 text-xs transition"
+                  title="Download marks as CSV"
+                >
+                  <Download size={13} /> Download CSV
+                </button>
+                <button
+                  onClick={() => setShowNewSec(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-soft hover:text-white hover:border-accent/30 text-xs transition"
+                >
+                  <Plus size={13} /> Add Section
+                </button>
+              </div>
             </div>
 
             {activeExam.sections.length === 0 ? (
