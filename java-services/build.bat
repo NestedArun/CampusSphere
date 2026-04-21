@@ -12,7 +12,15 @@ mkdir %OUT%
 
 echo Compiling sources...
 
-dir /s /b %SRC%\*.java > sources.txt
+if exist sources.txt del sources.txt
+dir /s /b %SRC%\*.java > sources.tmp
+for /F "usebackq tokens=*" %%A in ("sources.tmp") do (
+    set "F=%%A"
+    setlocal EnableDelayedExpansion
+    echo "!F:\=/!" >> sources.txt
+    endlocal
+)
+del sources.tmp
 
 javac -d %OUT% @sources.txt
 if errorlevel 1 (

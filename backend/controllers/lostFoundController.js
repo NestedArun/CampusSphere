@@ -4,7 +4,9 @@ const notifService = require("../services/notificationService");
 
 exports.createItem = async (req, res) => {
   try {
-    const { title, description, location, contactInfo, status } = req.body;
+    const { title, description, location, contactInfo, type: bodyType, status: bodyStatus } = req.body;
+    // `type` is the item kind (lost/found); frontend may send it as `status` or `type`
+    const itemType = (bodyType || bodyStatus || "lost").toLowerCase();
     if (!title)
       return res
         .status(400)
@@ -15,11 +17,12 @@ exports.createItem = async (req, res) => {
       description,
       location,
       contactInfo,
-      status: status || "lost",
+      type: itemType,       // "lost" or "found"
+      // status defaults to "open" per schema
       reportedBy: req.user._id,
     });
 
-    if ((status || "lost") === "found") {
+    if (itemType === "found") {
       const students = await User.find({
         role: "student",
         isActive: true,

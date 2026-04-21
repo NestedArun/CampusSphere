@@ -28,14 +28,15 @@ exports.createBooking = async (req, res) => {
       bookedBy: req.user._id,
     });
 
-    await notifService.createNotification({
+    // Fire notification async — don't await so gateway timeout is never triggered
+    notifService.createNotification({
       recipient: req.user._id,
       type: "booking",
       title: "✅ Booking Confirmed",
       message: `${facility} booked for ${new Date(date).toLocaleDateString("en-IN")} at ${startTime}.`,
       link: "/booking",
       meta: { bookingId: booking._id },
-    });
+    }).catch(() => {});
 
     const bookingObj = booking.toObject ? booking.toObject() : booking;
     bookingObj.venue = bookingObj.facility || bookingObj.venue;

@@ -34,7 +34,7 @@ public class ApiGateway {
 
     private static final Logger LOG        = Logger.getLogger(ApiGateway.class.getName());
     private static final int    GW_PORT    = 8080;
-    private static final String BACKEND    = "https://campussphere-6cza.onrender.com";
+    private static final String BACKEND    = "http://localhost:5000";
     private static final int    CACHE_SIZE = 1000;
     private static final long   CACHE_TTL  = 2 * 60 * 1000L;  // 2 min for GET
     private static final int    RATE_LIMIT = 100;              // req per minute per IP
