@@ -17,6 +17,15 @@ export default function Booking() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Prevent past date/time
+    const bookingDateTime = new Date(`${form.date}T${form.startTime}`);
+    const now = new Date();
+    if (bookingDateTime < now) {
+      alert("Cannot book a room for a past date or time.");
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await createBooking(form);
@@ -32,6 +41,10 @@ export default function Booking() {
     await cancelBooking(id);
     setBookings((p) => p.filter((b) => b._id !== id));
   };
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate()); // actually today
+  const minDate = tomorrow.toISOString().split("T")[0];
 
   return (
     <div className="space-y-5">
@@ -58,7 +71,7 @@ export default function Booking() {
                 <option value="">Select venue</option>
                 {ROOMS.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
-              <input type="date" value={form.date} onChange={(e) => setForm({...form, date: e.target.value})} required
+              <input type="date" value={form.date} min={minDate} onChange={(e) => setForm({...form, date: e.target.value})} required
                 className="w-full bg-background border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white outline-none focus:border-accent/60" />
               <div className="flex gap-2">
                 <input type="time" value={form.startTime} onChange={(e) => setForm({...form, startTime: e.target.value})} required

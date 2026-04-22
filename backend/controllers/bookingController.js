@@ -19,6 +19,16 @@ exports.createBooking = async (req, res) => {
         message: "Facility, date, startTime and endTime are required.",
       });
 
+    // Prevent past date/time bookings
+    const bookingDateTime = new Date(`${date}T${startTime}`);
+    const now = new Date();
+    if (bookingDateTime < now) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot book a room for a past date or time.",
+      });
+    }
+
     const booking = await Booking.create({
       facility,
       date,
