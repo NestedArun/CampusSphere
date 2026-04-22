@@ -1,19 +1,26 @@
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useNotifications } from "../../hooks/useNotifications";
 import NotificationPanel from "../notifications/NotificationPanel";
 
 const ROLE_COLORS = { admin: "text-red-400", teacher: "text-yellow-400", student: "text-accent" };
 
-export default function Navbar() {
+export default function Navbar({ onToggleSidebar }) {
   const { user } = useAuth();
   const [showPanel, setShowPanel] = useState(false);
   const { notifications, unreadCount, handleMarkRead, handleMarkAllRead, handleDelete } = useNotifications();
 
   return (
-    <div className="h-14 border-b border-white/8 flex items-center justify-between px-5 bg-primary shrink-0">
-      <div className="flex-1" />
+    <div className="h-14 border-b border-white/8 flex items-center justify-between px-4 md:px-5 bg-primary shrink-0 z-30">
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={onToggleSidebar}
+          className="lg:hidden p-2 rounded-xl bg-white/5 text-soft hover:text-white transition"
+        >
+          <Menu size={20} />
+        </button>
+      </div>
 
       <div className="flex items-center gap-3">
         {/* Bell with dot indicator */}

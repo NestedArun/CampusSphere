@@ -34,36 +34,42 @@ const ROLE_BADGE = {
   student: "bg-accent/20 text-accent border-accent/30",
 };
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, closeSidebar }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, logout, hasRole } = useAuth();
 
   return (
-    <div className="w-56 sticky top-0 h-screen bg-primary border-r border-white/8 flex flex-col shrink-0 overflow-y-auto">
-      <div className="px-4 py-5 border-b border-white/8">
+    <div className={`
+      fixed inset-y-0 left-0 z-50 w-64 bg-primary border-r border-white/8 flex flex-col shrink-0 overflow-y-auto transition-transform duration-300 ease-in-out
+      lg:static lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}
+    `}>
+      <div className="px-4 py-5 border-b border-white/8 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-accent/20 border border-accent/30 flex items-center justify-center">
             <GraduationCap size={16} className="text-accent"/>
           </div>
           <div>
-            <span className="text-white font-bold text-sm tracking-tight leading-none block">CampusSphere</span>
+            <span className="text-white font-bold text-sm tracking-tight block">CampusSphere</span>
             <span className="text-soft text-[10px]">Academic Platform</span>
           </div>
         </div>
+        <button onClick={closeSidebar} className="lg:hidden p-1.5 text-soft hover:text-white transition">
+           <ChevronRight size={18} className="rotate-180" />
+        </button>
       </div>
 
-      <nav className="flex-1 px-2 py-3 space-y-4">
+      <nav className="flex-1 px-2 py-3 space-y-1">
         {NAV_SECTIONS.map(section => {
           if (section.roles && !hasRole(...section.roles)) return null;
           return (
-            <div key={section.label}>
+            <div key={section.label} className="pb-3">
               <p className="text-[10px] font-semibold text-soft/50 uppercase tracking-widest px-3 mb-1.5">{section.label}</p>
               {section.items.map(item => {
                 const Icon = item.icon;
                 const active = pathname === item.path || pathname.startsWith(item.path+"/");
                 return (
-                  <Link key={item.path} to={item.path}
+                  <Link key={item.path} to={item.path} onClick={closeSidebar}
                     className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 group mb-0.5 ${
                       active?"bg-accent/20 text-white border border-accent/25":"text-soft hover:bg-white/5 hover:text-white"
                     }`}>

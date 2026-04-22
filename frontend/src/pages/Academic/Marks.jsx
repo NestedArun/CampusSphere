@@ -86,62 +86,80 @@ function StudentMarks() {
           key={exam._id}
           className="bg-primary border border-white/10 rounded-2xl overflow-hidden"
         >
-          <div className="px-5 py-3 border-b border-white/8 flex items-center gap-3">
-            <span className="text-white font-semibold">{exam.subject}</span>
+          <div className="px-5 py-3 border-b border-white/8 flex items-center justify-between gap-3">
+            <span className="text-white font-semibold truncate">{exam.subject}</span>
             {exam.teacher && (
-              <span className="text-soft text-xs">by {exam.teacher}</span>
+              <span className="text-soft text-[10px] shrink-0">by {exam.teacher}</span>
             )}
           </div>
           {exam.sections.length === 0 ? (
             <p className="px-5 py-4 text-soft text-sm">No sections yet.</p>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/8 text-soft text-xs">
-                  <th className="text-left px-5 py-2.5 font-medium">Section</th>
-                  <th className="text-center px-5 py-2.5 font-medium">Score</th>
-                  <th className="text-center px-5 py-2.5 font-medium">Grade</th>
-                  <th className="text-left px-5 py-2.5 font-medium hidden md:table-cell">
-                    Remarks
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
+            <>
+              {/* Desktop View */}
+              <div className="hidden md:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-white/8 text-soft text-xs">
+                      <th className="text-left px-5 py-2.5 font-medium">Section</th>
+                      <th className="text-center px-5 py-2.5 font-medium">Score</th>
+                      <th className="text-center px-5 py-2.5 font-medium">Grade</th>
+                      <th className="text-left px-5 py-2.5 font-medium">Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {exam.sections.map((sec) => (
+                      <tr key={sec._id} className="hover:bg-white/[0.03] transition">
+                        <td className="px-5 py-3 text-white font-medium">{sec.title}</td>
+                        <td className="px-5 py-3 text-center">
+                          {sec.score === null ? (
+                            <span className="text-soft text-xs">Pending</span>
+                          ) : (
+                            <span className={`font-bold ${gradeColor(sec.score, sec.maxScore)}`}>
+                              {sec.score}/{sec.maxScore}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          {sec.score !== null && (
+                            <span className={`font-bold text-xs ${gradeColor(sec.score, sec.maxScore)}`}>
+                              {gradeOf(sec.score, sec.maxScore)}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-soft text-xs">{sec.remarks || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Mobile View */}
+              <div className="md:hidden divide-y divide-white/5">
                 {exam.sections.map((sec) => (
-                  <tr
-                    key={sec._id}
-                    className="hover:bg-white/[0.03] transition"
-                  >
-                    <td className="px-5 py-3 text-white font-medium">
-                      {sec.title}
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      {sec.score === null ? (
-                        <span className="text-soft text-xs">Pending</span>
-                      ) : (
-                        <span
-                          className={`font-bold ${gradeColor(sec.score, sec.maxScore)}`}
-                        >
-                          {sec.score}/{sec.maxScore}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      {sec.score !== null && (
-                        <span
-                          className={`font-bold text-xs ${gradeColor(sec.score, sec.maxScore)}`}
-                        >
-                          {gradeOf(sec.score, sec.maxScore)}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3 text-soft text-xs hidden md:table-cell">
-                      {sec.remarks || "—"}
-                    </td>
-                  </tr>
+                  <div key={sec._id} className="p-4 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-medium text-sm">{sec.title}</span>
+                      <div className="text-right">
+                        {sec.score === null ? (
+                          <span className="text-soft text-[10px]">Pending</span>
+                        ) : (
+                          <div className="flex flex-col">
+                            <span className={`font-bold text-sm ${gradeColor(sec.score, sec.maxScore)}`}>
+                              {sec.score}/{sec.maxScore}
+                            </span>
+                            <span className={`font-bold text-[10px] ${gradeColor(sec.score, sec.maxScore)}`}>
+                              Grade: {gradeOf(sec.score, sec.maxScore)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {sec.remarks && <p className="text-soft text-[10px] italic">"{sec.remarks}"</p>}
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </>
           )}
         </div>
       ))}
@@ -301,9 +319,9 @@ function TeacherMarks() {
   };
 
   return (
-    <div className="flex gap-4 min-h-0">
+    <div className="flex flex-col md:flex-row gap-6 min-h-0">
       {/* Exam list */}
-      <div className="w-64 shrink-0 space-y-2">
+      <div className="w-full md:w-64 shrink-0 space-y-2">
         <button
           onClick={() => setShowNewExam(true)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-accent hover:bg-soft text-white text-sm font-medium transition"
@@ -311,39 +329,39 @@ function TeacherMarks() {
           <Plus size={14} /> New Exam
         </button>
 
-        {loading ? (
-          <div className="text-center text-soft text-sm py-8">Loading...</div>
-        ) : exams.length === 0 ? (
-          <div className="text-center text-soft text-sm py-8">
-            No exams yet.
-          </div>
-        ) : (
-          exams.map((ex) => (
-            <div
-              key={ex._id}
-              onClick={() => loadDetail(ex)}
-              className={`px-3 py-2.5 rounded-xl border cursor-pointer transition-all group ${activeExam?._id === ex._id ? "border-accent/40 bg-accent/8" : "border-white/10 bg-primary hover:border-accent/20"}`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-white text-xs font-semibold truncate">
-                    {ex.subject}
-                  </p>
-                  <p className="text-soft text-[10px]">{ex.department}</p>
+        <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto py-1 md:py-0 pb-3 md:pb-0 scrollbar-hide">
+          {loading ? (
+            <div className="text-center text-soft text-sm py-4 w-full">Loading...</div>
+          ) : exams.length === 0 ? (
+            <div className="text-center text-soft text-sm py-4 w-full">No exams yet.</div>
+          ) : (
+            exams.map((ex) => (
+              <div
+                key={ex._id}
+                onClick={() => loadDetail(ex)}
+                className={`flex-shrink-0 w-48 md:w-full px-3 py-2.5 rounded-xl border cursor-pointer transition-all group ${activeExam?._id === ex._id ? "border-accent/40 bg-accent/8" : "border-white/10 bg-primary hover:border-accent/20"}`}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-white text-xs font-semibold truncate leading-tight">
+                      {ex.subject}
+                    </p>
+                    <p className="text-soft text-[10px] leading-tight mt-0.5">{ex.department}</p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteExam(ex._id);
+                    }}
+                    className="md:opacity-0 group-hover:opacity-100 text-soft hover:text-red-400 transition shrink-0"
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteExam(ex._id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 text-soft hover:text-red-400 transition shrink-0"
-                >
-                  <Trash2 size={12} />
-                </button>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
       {/* Detail pane */}
@@ -394,30 +412,32 @@ function TeacherMarks() {
                   className="bg-primary border border-white/10 rounded-2xl overflow-hidden"
                 >
                   {/* Section header */}
-                  <div className="px-5 py-3 border-b border-white/8 flex items-center gap-3">
-                    <span className="text-white font-semibold text-sm">
-                      {sec.title}
-                    </span>
-                    <span className="text-soft text-xs">
-                      Max: {sec.maxScore}
-                    </span>
-                    <div className="ml-auto flex items-center gap-2">
+                  <div className="px-4 md:px-5 py-3 border-b border-white/8 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-white font-semibold text-sm block truncate">
+                        {sec.title}
+                      </span>
+                      <span className="text-soft text-[10px]">
+                        Max Score: {sec.maxScore}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       {editSection === sec._id ? (
                         <>
                           <button
                             onClick={() => handleSaveMarks(sec._id)}
                             disabled={saving}
-                            className="flex items-center gap-1 px-3 py-1 rounded-lg bg-accent text-white text-xs transition disabled:opacity-50"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg bg-accent text-white text-xs transition disabled:opacity-50"
                           >
                             <Save size={12} />
-                            {saving ? "Saving..." : "Save"}
+                            {saving ? "..." : "Save"}
                           </button>
                           <button
                             onClick={() => {
                               setEditSection(null);
                               setEdits({});
                             }}
-                            className="px-3 py-1 rounded-lg border border-white/10 text-soft text-xs hover:bg-white/5 transition"
+                            className="flex-1 sm:flex-none px-3 py-1.5 rounded-lg border border-white/10 text-soft text-xs hover:bg-white/5 transition text-center"
                           >
                             Cancel
                           </button>
@@ -428,14 +448,14 @@ function TeacherMarks() {
                             setEditSection(sec._id);
                             setEdits({});
                           }}
-                          className="flex items-center gap-1 px-3 py-1 rounded-lg border border-white/10 text-soft text-xs hover:border-accent/30 hover:text-white transition"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg border border-white/10 text-soft text-xs hover:border-accent/30 hover:text-white transition"
                         >
-                          <Edit3 size={12} /> Edit Marks
+                          <Edit3 size={12} /> Edit
                         </button>
                       )}
                       <button
                         onClick={() => handleDeleteSection(sec._id)}
-                        className="p-1 text-soft hover:text-red-400 transition"
+                        className="p-1.5 text-soft hover:text-red-400 transition shrink-0"
                       >
                         <Trash2 size={13} />
                       </button>

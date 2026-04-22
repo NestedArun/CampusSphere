@@ -91,31 +91,59 @@ export default function Booking() {
       )}
 
       <div className="bg-primary border border-white/10 rounded-xl overflow-hidden">
-        {loading ? <div className="py-12 text-center text-soft">Loading...</div>
-        : bookings.length === 0 ? <div className="py-12 text-center text-soft">No bookings yet.</div>
-        : (
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-white/10 text-soft">
-              <th className="text-left px-4 py-3 font-medium">Venue</th>
-              <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Date</th>
-              <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Time</th>
-              <th className="text-left px-4 py-3 font-medium">Purpose</th>
-              <th className="px-4 py-3" />
-            </tr></thead>
-            <tbody className="divide-y divide-white/5">
+        {loading ? (
+          <div className="py-12 text-center text-soft">Loading...</div>
+        ) : bookings.length === 0 ? (
+          <div className="py-12 text-center text-soft">No bookings yet.</div>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 text-soft">
+                    <th className="text-left px-4 py-3 font-medium">Venue</th>
+                    <th className="text-left px-4 py-3 font-medium">Date</th>
+                    <th className="text-left px-4 py-3 font-medium">Time</th>
+                    <th className="text-left px-4 py-3 font-medium">Purpose</th>
+                    <th className="px-4 py-3" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {bookings.map((b) => (
+                    <tr key={b._id} className="hover:bg-white/[0.03] transition">
+                      <td className="px-4 py-3 text-white font-medium">{b.venue || b.facility}</td>
+                      <td className="px-4 py-3 text-soft">{b.date ? new Date(b.date).toLocaleDateString("en-IN") : "—"}</td>
+                      <td className="px-4 py-3 text-soft">{b.startTime} – {b.endTime}</td>
+                      <td className="px-4 py-3 text-soft">{b.purpose || "—"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <button onClick={() => handleCancel(b._id)} className="text-xs text-red-400/80 hover:text-red-400 transition font-medium">Cancel</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden divide-y divide-white/5">
               {bookings.map((b) => (
-                <tr key={b._id} className="hover:bg-white/[0.03] transition">
-                  <td className="px-4 py-3 text-white font-medium">{b.venue || b.room}</td>
-                  <td className="px-4 py-3 text-soft hidden md:table-cell">{b.date ? new Date(b.date).toLocaleDateString("en-IN") : "—"}</td>
-                  <td className="px-4 py-3 text-soft hidden md:table-cell">{b.startTime} – {b.endTime}</td>
-                  <td className="px-4 py-3 text-soft">{b.purpose || "—"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button onClick={() => handleCancel(b._id)} className="text-xs text-red-400/70 hover:text-red-400 transition">Cancel</button>
-                  </td>
-                </tr>
+                <div key={b._id} className="p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-white font-semibold">{b.venue || b.facility}</h3>
+                      <p className="text-xs text-soft">{b.date ? new Date(b.date).toLocaleDateString("en-IN") : "—"}</p>
+                    </div>
+                    <button onClick={() => handleCancel(b._id)} className="px-2 py-1 bg-red-500/10 text-red-400 text-[10px] uppercase tracking-wider font-bold rounded border border-red-500/20">Cancel</button>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs">
+                    <div className="text-soft"><span className="text-white/40 mr-1">Time:</span> {b.startTime} - {b.endTime}</div>
+                    <div className="text-soft truncate"><span className="text-white/40 mr-1">For:</span> {b.purpose || "—"}</div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
     </div>
