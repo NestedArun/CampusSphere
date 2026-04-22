@@ -151,28 +151,16 @@ public class ApiGateway {
 
         // 4. Proxy to backend
         try {
-            String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            byte[] requestBody = ex.getRequestBody().readAllBytes();
 
             String originalPath = ex.getRequestURI().getPath();
             String query = ex.getRequestURI().getQuery();
 
             // Fix path
-            String fixedPath;
-            if (originalPath.startsWith("/api/v1")) {
-                fixedPath = originalPath;
-            } else {
-                fixedPath = "/api/v1" + originalPath;
-            }
-
-            // Add query if exists
-            if (query != null) {
-                fixedPath += "?" + query;
-            }
+            String fixedPath = originalPath.startsWith("/api/v1") ? originalPath : "/api/v1" + originalPath;
+            if (query != null) fixedPath += "?" + query;
 
             String fullUrl = BACKEND + fixedPath;
-
-            System.out.println("FORWARDING TO: " + fullUrl);
-
 
             HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(fullUrl))
@@ -187,45 +175,42 @@ public class ApiGateway {
             reqBuilder.header("X-Forwarded-For", ip);
             reqBuilder.header("X-Gateway", "CampusSphere-Java-GW/1.0");
 
-            HttpRequest.BodyPublisher publisher = body.isEmpty()
+            HttpRequest.BodyPublisher publisher = (requestBody.length == 0)
                 ? HttpRequest.BodyPublishers.noBody()
-                : HttpRequest.BodyPublishers.ofString(body);
+                : HttpRequest.BodyPublishers.ofByteArray(requestBody);
 
             reqBuilder.method(method, publisher);
 
-            HttpResponse<String> resp = httpClient.send(reqBuilder.build(), HttpResponse.BodyHandlers.ofString());
+            HttpResponse<byte[]> resp = httpClient.send(reqBuilder.build(), HttpResponse.BodyHandlers.ofByteArray());
             proxied.incrementAndGet();
 
             // Reset circuit breaker on success
             if (resp.statusCode() < 500) { failures.set(0); }
 
-            // Cache GET responses
-            if ("GET".equals(method) && isCacheable(path) && resp.statusCode() == 200) {
+            // Cache GET responses (only if not a binary file download, keep it simple)
+            String contentType = resp.headers().firstValue("Content-Type").orElse("");
+            boolean isJson = contentType.contains("application/json");
+
+            if ("GET".equals(method) && isCacheable(path) && resp.statusCode() == 200 && isJson) {
                 String authHeader = ex.getRequestHeaders().getFirst("Authorization");
                 String cacheKey   = method + ":" + path + "?" + safeQuery(ex) + ":auth=" + (authHeader != null ? authHeader.hashCode() : "none");
-                cache.put(cacheKey, resp.body(), CACHE_TTL);
+                cache.put(cacheKey, new String(resp.body(), StandardCharsets.UTF_8), CACHE_TTL);
                 ex.getResponseHeaders().set("X-Cache", "MISS");
             }
 
-            // Publish mutating operations to MQ
-            String mqTopic = method + ":" + basePath(path);
-            if (MQ_TOPICS.contains(mqTopic) && resp.statusCode() < 400) {
-                mq.publish(mqTopic, body.isEmpty() ? "{}" : body, 60 * 60 * 1000L);
-                // Invalidate related cache entries
-                invalidateRelatedCache(path);
-            }
+            // Forward response headers
+            resp.headers().map().forEach((k, v) -> {
+                if (!k.startsWith(":") && !k.equalsIgnoreCase("Transfer-Encoding") && !k.equalsIgnoreCase("Content-Length")) {
+                    ex.getResponseHeaders().set(k, String.join(",", v));
+                }
+            });
 
-            // Forward response
-           resp.headers().map().forEach((k, v) -> {
-            if (!k.startsWith(":")
-                && !k.equalsIgnoreCase("Transfer-Encoding")
-                && !k.equalsIgnoreCase("Content-Encoding")   
-                && !k.equalsIgnoreCase("Content-Length")) {  
-
-                ex.getResponseHeaders().set(k, String.join(",", v));
+            // Respond with binary data
+            ex.getResponseHeaders().set("Content-Type", contentType);
+            ex.sendResponseHeaders(resp.statusCode(), resp.body().length);
+            try (OutputStream os = ex.getResponseBody()) {
+                os.write(resp.body());
             }
-        });
-            respond(ex, resp.statusCode(), resp.body());
             log(method, path, resp.statusCode(), ip, System.currentTimeMillis() - start, "PROXY");
 
         } catch (Exception e) {
@@ -234,9 +219,7 @@ public class ApiGateway {
             lastFailure.set(System.currentTimeMillis());
             if (fc >= CB_THRESHOLD) {
                 circuitOpen = true;
-                LOG.severe("[CB] Circuit OPEN after " + fc + " failures: " + e.getMessage());
             }
-            LOG.warning("[GW] Proxy error: " + e.getMessage());
             respond(ex, 502, "{\"success\":false,\"message\":\"Backend unreachable.\"}");
             log(method, path, 502, ip, System.currentTimeMillis() - start, "PROXY_ERROR");
         }
