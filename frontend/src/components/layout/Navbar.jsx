@@ -12,7 +12,7 @@ export default function Navbar({ onToggleSidebar }) {
   const { notifications, unreadCount, handleMarkRead, handleMarkAllRead, handleDelete } = useNotifications();
 
   return (
-    <div className="h-14 border-b border-white/8 flex items-center justify-between px-4 md:px-5 bg-primary shrink-0 z-30">
+    <div className="h-14 border-b border-white/8 flex items-center justify-between px-4 md:px-5 bg-primary shrink-0 z-[9997]">
       <div className="flex items-center gap-3">
         <button 
           onClick={onToggleSidebar}

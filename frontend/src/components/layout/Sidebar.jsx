@@ -41,7 +41,7 @@ export default function Sidebar({ isOpen, closeSidebar }) {
 
   return (
     <div className={`
-      fixed inset-y-0 left-0 z-50 w-64 bg-primary border-r border-white/8 flex flex-col shrink-0 overflow-y-auto transition-transform duration-300 ease-in-out
+      fixed inset-y-0 left-0 z-[9999] w-64 bg-primary border-r border-white/8 flex flex-col shrink-0 overflow-y-auto transition-transform duration-300 ease-in-out
       lg:static lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}
     `}>
       <div className="px-4 py-5 border-b border-white/8 flex items-center justify-between">

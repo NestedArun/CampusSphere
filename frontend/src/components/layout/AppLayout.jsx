@@ -10,7 +10,7 @@ function AppLayout({ children }) {
       {/* Mobile Backdrop Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
