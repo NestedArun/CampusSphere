@@ -33,8 +33,8 @@ import java.util.logging.*;
 public class ApiGateway {
 
     private static final Logger LOG        = Logger.getLogger(ApiGateway.class.getName());
-    private static final int    GW_PORT    = System.getenv("PORT") != null ? Integer.parseInt(System.getenv("PORT")) : 8080;
-    private static final String BACKEND    = System.getenv("BACKEND_URL") != null ? System.getenv("BACKEND_URL") : "http://localhost:5000";
+    private static final int    GW_PORT    = 8080;
+    private static final String BACKEND    = "http://localhost:5000";
     private static final int    CACHE_SIZE = 1000;
     private static final long   CACHE_TTL  = 2 * 60 * 1000L;  // 2 min for GET
     private static final int    RATE_LIMIT = 100;              // req per minute per IP
@@ -152,16 +152,28 @@ public class ApiGateway {
 
         // 4. Proxy to backend
         try {
-            byte[] requestBody = ex.getRequestBody().readAllBytes();
+            String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
 
             String originalPath = ex.getRequestURI().getPath();
             String query = ex.getRequestURI().getQuery();
 
             // Fix path
-            String fixedPath = originalPath.startsWith("/api/v1") ? originalPath : "/api/v1" + originalPath;
-            if (query != null) fixedPath += "?" + query;
+            String fixedPath;
+            if (originalPath.startsWith("/api/v1")) {
+                fixedPath = originalPath;
+            } else {
+                fixedPath = "/api/v1" + originalPath;
+            }
+
+            // Add query if exists
+            if (query != null) {
+                fixedPath += "?" + query;
+            }
 
             String fullUrl = BACKEND + fixedPath;
+
+            System.out.println("FORWARDING TO: " + fullUrl);
+
 
             HttpRequest.Builder reqBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(fullUrl))
@@ -176,42 +188,45 @@ public class ApiGateway {
             reqBuilder.header("X-Forwarded-For", ip);
             reqBuilder.header("X-Gateway", "CampusSphere-Java-GW/1.0");
 
-            HttpRequest.BodyPublisher publisher = (requestBody.length == 0)
+            HttpRequest.BodyPublisher publisher = body.isEmpty()
                 ? HttpRequest.BodyPublishers.noBody()
-                : HttpRequest.BodyPublishers.ofByteArray(requestBody);
+                : HttpRequest.BodyPublishers.ofString(body);
 
             reqBuilder.method(method, publisher);
 
-            HttpResponse<byte[]> resp = httpClient.send(reqBuilder.build(), HttpResponse.BodyHandlers.ofByteArray());
+            HttpResponse<String> resp = httpClient.send(reqBuilder.build(), HttpResponse.BodyHandlers.ofString());
             proxied.incrementAndGet();
 
             // Reset circuit breaker on success
             if (resp.statusCode() < 500) { failures.set(0); }
 
-            // Cache GET responses (only if not a binary file download, keep it simple)
-            String contentType = resp.headers().firstValue("Content-Type").orElse("");
-            boolean isJson = contentType.contains("application/json");
-
-            if ("GET".equals(method) && isCacheable(path) && resp.statusCode() == 200 && isJson) {
+            // Cache GET responses
+            if ("GET".equals(method) && isCacheable(path) && resp.statusCode() == 200) {
                 String authHeader = ex.getRequestHeaders().getFirst("Authorization");
                 String cacheKey   = method + ":" + path + "?" + safeQuery(ex) + ":auth=" + (authHeader != null ? authHeader.hashCode() : "none");
-                cache.put(cacheKey, new String(resp.body(), StandardCharsets.UTF_8), CACHE_TTL);
+                cache.put(cacheKey, resp.body(), CACHE_TTL);
                 ex.getResponseHeaders().set("X-Cache", "MISS");
             }
 
-            // Forward response headers
-            resp.headers().map().forEach((k, v) -> {
-                if (!k.startsWith(":") && !k.equalsIgnoreCase("Transfer-Encoding") && !k.equalsIgnoreCase("Content-Length")) {
-                    ex.getResponseHeaders().set(k, String.join(",", v));
-                }
-            });
-
-            // Respond with binary data
-            ex.getResponseHeaders().set("Content-Type", contentType);
-            ex.sendResponseHeaders(resp.statusCode(), resp.body().length);
-            try (OutputStream os = ex.getResponseBody()) {
-                os.write(resp.body());
+            // Publish mutating operations to MQ
+            String mqTopic = method + ":" + basePath(path);
+            if (MQ_TOPICS.contains(mqTopic) && resp.statusCode() < 400) {
+                mq.publish(mqTopic, body.isEmpty() ? "{}" : body, 60 * 60 * 1000L);
+                // Invalidate related cache entries
+                invalidateRelatedCache(path);
             }
+
+            // Forward response
+           resp.headers().map().forEach((k, v) -> {
+            if (!k.startsWith(":")
+                && !k.equalsIgnoreCase("Transfer-Encoding")
+                && !k.equalsIgnoreCase("Content-Encoding")   
+                && !k.equalsIgnoreCase("Content-Length")) {  
+
+                ex.getResponseHeaders().set(k, String.join(",", v));
+            }
+        });
+            respond(ex, resp.statusCode(), resp.body());
             log(method, path, resp.statusCode(), ip, System.currentTimeMillis() - start, "PROXY");
 
         } catch (Exception e) {
@@ -220,7 +235,9 @@ public class ApiGateway {
             lastFailure.set(System.currentTimeMillis());
             if (fc >= CB_THRESHOLD) {
                 circuitOpen = true;
+                LOG.severe("[CB] Circuit OPEN after " + fc + " failures: " + e.getMessage());
             }
+            LOG.warning("[GW] Proxy error: " + e.getMessage());
             respond(ex, 502, "{\"success\":false,\"message\":\"Backend unreachable.\"}");
             log(method, path, 502, ip, System.currentTimeMillis() - start, "PROXY_ERROR");
         }
@@ -258,9 +275,13 @@ public class ApiGateway {
             String json = new String(body, StandardCharsets.UTF_8);
 
             String topic   = extractJsonValue(json, "topic");
-            String payload = extractJsonValue(json, "payload");
+            String base64  = extractJsonValue(json, "payload");
 
-            if (topic != null && payload != null) {
+            if (topic != null && base64 != null) {
+                // Decode from Base64
+                byte[] decoded = Base64.getDecoder().decode(base64);
+                String payload = new String(decoded, StandardCharsets.UTF_8);
+                
                 mq.publish(topic, payload);
                 respond(ex, 200, "{\"success\":true,\"message\":\"Enqueued in Java MQ\"}");
             } else {
@@ -272,14 +293,26 @@ public class ApiGateway {
     }
 
     private String extractJsonValue(String json, String key) {
-        // Simple regex-less extraction for "key":"value" or "key": "value"
-        String pattern = "\"" + key + "\"\\s*:\\s*\"";
-        int start = json.indexOf(pattern);
-        if (start == -1) return null;
-        start += pattern.length();
-        int end = json.indexOf("\"", start);
-        if (end == -1) return null;
-        return json.substring(start, end);
+        // Find "key"
+        int keyIdx = json.indexOf("\"" + key + "\"");
+        if (keyIdx == -1) return null;
+        
+        // Find the colon after the key
+        int colonIdx = json.indexOf(":", keyIdx);
+        if (colonIdx == -1) return null;
+        
+        // Find the first quote after the colon
+        int quoteStart = json.indexOf("\"", colonIdx);
+        if (quoteStart == -1) return null;
+        
+        // The value starts after this quote
+        int valStart = quoteStart + 1;
+        
+        // Find the closing quote
+        int quoteEnd = json.indexOf("\"", valStart);
+        if (quoteEnd == -1) return null;
+        
+        return json.substring(valStart, quoteEnd);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

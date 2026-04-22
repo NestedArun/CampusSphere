@@ -9,10 +9,14 @@ const JAVA_MQ_URL = "http://localhost:8080/mq/publish";
  */
 async function notifyJavaMQ(topic, payload) {
   try {
+    // Base64 encode to avoid quote-parsing issues in Java manual parser
+    const payloadStr = typeof payload === "string" ? payload : JSON.stringify(payload);
+    const base64Payload = Buffer.from(payloadStr).toString("base64");
+    
     await fetch(JAVA_MQ_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic, payload: typeof payload === "string" ? payload : JSON.stringify(payload) })
+      body: JSON.stringify({ topic, payload: base64Payload })
     });
   } catch (err) {
     logger.error(SERVICE, "Failed to bridge to Java MQ", { error: err.message });
