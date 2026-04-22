@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { getNotifications, markRead, markAllRead, deleteNotification } from "../services/notificationService";
 import { useAuth } from "../context/AuthContext";
 
-const POLL_MS = 12000;
+const POLL_MS = 3000;
 
 export function useNotifications() {
   const { isAuthenticated } = useAuth();
