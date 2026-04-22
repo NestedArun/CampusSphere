@@ -183,7 +183,7 @@ export default function CampusMap() {
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem-2.5rem)] gap-3">
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-3.5rem-2.5rem)] gap-3">
 
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
@@ -202,10 +202,10 @@ export default function CampusMap() {
       </div>
 
       {/* Main layout */}
-      <div className="flex gap-3 flex-1 min-h-0">
+      <div className="flex flex-col lg:flex-row gap-3 flex-1 min-h-0">
 
-        {/* ── Left sidebar ── */}
-        <div className="w-64 shrink-0 flex flex-col gap-3 min-h-0">
+        {/* ── Sidebar (Top on mobile, Left on Desktop) ── */}
+        <div className="w-full lg:w-64 shrink-0 flex flex-col gap-3 min-h-0 order-2 lg:order-1">
 
           {/* Tab switcher */}
           <div className="flex bg-primary border border-white/10 rounded-xl p-1 gap-1">
@@ -236,7 +236,7 @@ export default function CampusMap() {
               </div>
 
               {/* Location list */}
-              <div className="flex-1 overflow-y-auto space-y-1 min-h-0">
+              <div className="flex-1 overflow-y-auto space-y-1 min-h-0 max-h-[30vh] lg:max-h-none">
                 {filteredLocs.map(loc => (
                   <div key={loc.code} onClick={() => focusLocation(loc)}
                     className={`px-3 py-2.5 rounded-xl cursor-pointer transition-all border ${selected?.code===loc.code?"border-accent/40 bg-accent/8":"border-white/5 bg-primary hover:bg-white/5"}`}>
@@ -245,7 +245,7 @@ export default function CampusMap() {
                         style={{background:`${CAT_COLOR[loc.cat]}20`,color:CAT_COLOR[loc.cat],border:`1px solid ${CAT_COLOR[loc.cat]}40`}}>
                         {loc.code.slice(0,2)}
                       </div>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="text-white text-xs font-medium truncate">{loc.name}</p>
                         <p className="text-soft text-[10px] capitalize">{loc.cat}</p>
                       </div>
@@ -257,7 +257,7 @@ export default function CampusMap() {
             </>
           ) : (
             /* Bus list */
-            <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+            <div className="flex-1 overflow-y-auto space-y-2 min-h-0 max-h-[30vh] lg:max-h-none">
               <div className="space-y-1.5">
                 {BUS_ROUTES.map(r => (
                   <div key={r.id} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary border border-white/10">
@@ -296,11 +296,11 @@ export default function CampusMap() {
         </div>
 
         {/* ── Map ── */}
-        <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 min-h-0">
-          <div ref={mapDiv} className="w-full h-full" style={{minHeight:"400px"}}/>
+        <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 min-h-[40vh] md:min-h-0 order-1 lg:order-2">
+          <div ref={mapDiv} className="w-full h-full" />
 
           {!leafletReady && (
-            <div className="absolute inset-0 bg-primary flex items-center justify-center">
+            <div className="absolute inset-0 bg-primary z-50 flex items-center justify-center">
               <div className="text-center text-soft">
                 <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-2"/>
                 <p className="text-sm">Loading map...</p>
@@ -329,7 +329,7 @@ export default function CampusMap() {
 
           {/* Selected location detail card */}
           {selected && (
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 w-80 glass rounded-2xl p-4 pointer-events-auto">
+            <div className="absolute bottom-3 left-4 right-4 lg:left-1/2 lg:-translate-x-1/2 lg:w-80 glass rounded-2xl p-4 pointer-events-auto z-[1000]">
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium capitalize ${CAT_BADGE[selected.cat]}`}>{selected.cat}</span>

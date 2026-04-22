@@ -72,30 +72,65 @@ export default function LostFound() {
       )}
 
       <div className="bg-primary border border-white/10 rounded-xl overflow-hidden">
-        {loading ? <div className="py-12 text-center text-soft">Loading...</div>
-        : items.length === 0 ? <div className="py-12 text-center text-soft">No items reported yet.</div>
-        : (
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-white/10 text-soft">
-              <th className="text-left px-4 py-3 font-medium">Item</th>
-              <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Location</th>
-              <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Reported by</th>
-            </tr></thead>
-            <tbody className="divide-y divide-white/5">
+        {loading ? (
+          <div className="py-12 text-center text-soft">Loading...</div>
+        ) : items.length === 0 ? (
+          <div className="py-12 text-center text-soft">No items reported yet.</div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 text-soft">
+                    <th className="text-left px-4 py-3 font-medium">Item</th>
+                    <th className="text-left px-4 py-3 font-medium">Location</th>
+                    <th className="text-left px-4 py-3 font-medium">Status</th>
+                    <th className="text-left px-4 py-3 font-medium">Reported by</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {items.map((item) => (
+                    <tr key={item._id} className="hover:bg-white/[0.03] transition">
+                      <td className="px-4 py-3">
+                        <p className="text-white font-medium">{item.title || item.itemName}</p>
+                        {item.description && <p className="text-xs text-soft truncate max-w-sm">{item.description}</p>}
+                      </td>
+                      <td className="px-4 py-3 text-soft">{item.location || "—"}</td>
+                      <td className="px-4 py-3 capitalize font-medium text-xs">
+                        <span className={STATUS_COLORS[item.status] || "text-soft"}>{item.status}</span>
+                      </td>
+                      <td className="px-4 py-3 text-soft text-xs">{item.reportedBy?.name || item.createdBy?.name || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List */}
+            <div className="md:hidden divide-y divide-white/5">
               {items.map((item) => (
-                <tr key={item._id} className="hover:bg-white/[0.03] transition">
-                  <td className="px-4 py-3">
-                    <p className="text-white font-medium">{item.title || item.itemName}</p>
-                    {item.description && <p className="text-xs text-soft truncate max-w-[200px]">{item.description}</p>}
-                  </td>
-                  <td className="px-4 py-3 text-soft hidden md:table-cell">{item.location || "—"}</td>
-                  <td className="px-4 py-3 capitalize font-medium text-xs"><span className={STATUS_COLORS[item.status] || "text-soft"}>{item.status}</span></td>
-                  <td className="px-4 py-3 text-soft text-xs hidden md:table-cell">{item.reportedBy?.name || item.createdBy?.name || "—"}</td>
-                </tr>
+                <div key={item._id} className="p-4 space-y-2">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-white font-semibold">{item.title || item.itemName}</h3>
+                      <p className="text-xs text-soft mt-0.5 capitalize flex items-center gap-1.5">
+                        <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'lost' ? 'bg-red-400' : 'bg-green-400'}`} />
+                        {item.status}
+                      </p>
+                    </div>
+                    <span className="text-[10px] text-soft bg-white/5 px-2 py-1 rounded border border-white/10">
+                      {item.location || "Unknown"}
+                    </span>
+                  </div>
+                  {item.description && <p className="text-xs text-soft italic line-clamp-2">"{item.description}"</p>}
+                  <div className="flex justify-between items-center pt-1">
+                     <span className="text-[10px] text-soft/60">By {item.reportedBy?.name || item.createdBy?.name || "—"}</span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </div>
     </div>
