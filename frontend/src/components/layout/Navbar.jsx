@@ -29,14 +29,9 @@ export default function Navbar({ onToggleSidebar }) {
             className="relative p-2 rounded-xl hover:bg-white/5 transition text-soft hover:text-white">
             <Bell size={16} />
             {unreadCount > 0 && (
-              <>
-                {/* Red dot */}
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-primary" />
-                {/* Count badge */}
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-accent text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
-                  {unreadCount > 99 ? "99+" : unreadCount}
-                </span>
-              </>
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-accent text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none shadow-lg">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
             )}
           </button>
           {showPanel && (

@@ -5,8 +5,7 @@ import com.campussphere.queue.MessageQueue;
 import com.sun.net.httpserver.*;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.net.URI;
+import java.net.*;
 import java.net.http.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -95,6 +94,9 @@ public class ApiGateway {
         server.createContext("/mq/publish",     this::handleMqPublish);
         server.setExecutor(Executors.newFixedThreadPool(50));
         server.start();
+        
+        startWorkerThreads();
+        
         LOG.info("========================================");
         LOG.info(" CampusSphere API Gateway started");
         LOG.info(" Listening on port " + GW_PORT);
@@ -290,6 +292,37 @@ public class ApiGateway {
         } catch (Exception e) {
             respond(ex, 500, "{\"success\":false,\"message\":\"MQ Error: " + e.getMessage() + "\"}");
         }
+    }
+
+    /** 
+     * Worker Simulation: When Java MQ receives a note processing task, 
+     * it waits 3 seconds and then calls the Node.js callback.
+     */
+    private void startWorkerThreads() {
+        mq.subscribe("notes:process", payload -> {
+            new Thread(() -> {
+                try {
+                    LOG.info("[Worker] Processing note: " + payload);
+                    Thread.sleep(3000); // Simulate processing
+                    
+                    // Call Node.js backend back
+                    URL url = new URL(BACKEND + "/api/v1/notes/callback");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setDoOutput(true);
+                    
+                    try (OutputStream os = conn.getOutputStream()) {
+                        os.write(payload.getBytes(StandardCharsets.UTF_8));
+                    }
+                    
+                    int code = conn.getResponseCode();
+                    LOG.info("[Worker] Callback finished with status: " + code);
+                } catch (Exception e) {
+                    LOG.severe("[Worker] Failed to process note: " + e.getMessage());
+                }
+            }).start();
+        });
     }
 
     private String extractJsonValue(String json, String key) {

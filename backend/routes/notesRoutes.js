@@ -48,12 +48,11 @@ router.post(
   async (req, res) => {
     try {
       if (!req.file)
-        return res
-          .status(400)
-          .json({ success: false, message: "No file uploaded" });
+        return res.status(400).json({ success: false, message: "No file uploaded" });
+      
       const { title, subject, type } = req.body;
 
-      // Create a DB placeholder in 'processing' state so the frontend can show the item immediately
+      // 1. Create note in 'processing' state
       const note = await Note.create({
         title,
         subject,
@@ -62,35 +61,66 @@ router.post(
         originalName: req.file.originalname,
         size: req.file.size,
         uploadedBy: req.user._id,
-        status: "processing",
+        status: "processing", // It starts here
       });
 
-      // Enqueue job to finish processing (worker will mark it ready)
-      try {
-        await notesQueue.add("processNote", {
-          noteId: note._id.toString(),
-          filePath: req.file.path,
-        });
-      } catch (queueErr) {
-        // If enqueuing fails, mark note as failed
-        note.status = "failed";
-        await note.save();
-        console.error("Queue error:", queueErr.message || queueErr);
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: "Failed to enqueue processing job",
-          });
-      }
+      // 2. Publish "Process" event to Java MQ
+      // We pass the noteId and the user info so Java knows who to notify later
+      await notifService.notifyJavaMQ("notes:process", {
+        noteId: note._id,
+        subject: subject,
+        title: title,
+        userName: req.user.name,
+        department: req.user.department
+      });
 
-      // Return accepted with the created note placeholder
-      res.status(202).json({ success: true, note, queued: true });
+      res.status(202).json({ success: true, note, message: "Note enqueued in Java MQ" });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
   },
 );
+
+/**
+ * 🔒 Internal Callback for Java MQ 
+ * When Java MQ finishes "processing", it calls this to mark note ready.
+ */
+router.post("/callback", async (req, res) => {
+  try {
+    const { noteId, subject, title, userName, department } = req.body;
+    
+    const note = await Note.findById(noteId);
+    if (!note) return res.status(404).end();
+
+    // 1. Mark as ready
+    note.status = "ready";
+    await note.save();
+
+    // 2. Now notify the students
+    const students = await User.find({
+      role: "student",
+      department: department,
+      isActive: true,
+    }).select("_id");
+
+    if (students.length > 0) {
+      await notifService.broadcastNotification(
+        students.map((s) => s._id),
+        {
+          type: "notes",
+          title: "📚 New Study Material",
+          message: `${subject}: ${title} is now ready (Uploaded by ${userName})`,
+          link: "/notes",
+          meta: { noteId: note._id },
+        }
+      );
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).end();
+  }
+});
 
 router.get("/", protect, async (req, res) => {
   try {

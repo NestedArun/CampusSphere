@@ -22,22 +22,22 @@ exports.createItem = async (req, res) => {
       reportedBy: req.user._id,
     });
 
-    if (itemType === "found") {
-      const students = await User.find({
-        role: "student",
-        isActive: true,
-      }).select("_id");
-      await notifService.broadcastNotification(
-        students.map((s) => s._id),
-        {
-          type: "lost_found",
-          title: "🔍 Found Item Reported",
-          message: `"${title}" was found${location ? ` at ${location}` : ""}. Check Lost & Found.`,
-          link: "/lost-found",
-          meta: { itemId: item._id },
-        },
-      );
-    }
+    // Notify all students about the new item
+    const students = await User.find({
+      role: "student",
+      isActive: true,
+    }).select("_id");
+
+    await notifService.broadcastNotification(
+      students.map((s) => s._id),
+      {
+        type: "lost_found",
+        title: itemType === "found" ? "🔍 Found Item Reported" : "❓ New Lost Item",
+        message: `"${title}" was reported as ${itemType}${location ? ` at ${location}` : ""}.`,
+        link: "/lost-found",
+        meta: { itemId: item._id },
+      },
+    );
 
     res.status(201).json({ success: true, item });
   } catch (err) {
