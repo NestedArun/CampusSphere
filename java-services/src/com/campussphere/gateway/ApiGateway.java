@@ -92,6 +92,7 @@ public class ApiGateway {
         server.createContext("/",               this::handle);
         server.createContext("/gateway/stats",  this::handleStats);
         server.createContext("/gateway/health", this::handleHealth);
+        server.createContext("/mq/publish",     this::handleMqPublish);
         server.setExecutor(Executors.newFixedThreadPool(50));
         server.start();
         LOG.info("========================================");
@@ -243,6 +244,42 @@ public class ApiGateway {
     private void handleHealth(HttpExchange ex) throws IOException {
         addCors(ex);
         respond(ex, 200, "{\"status\":\"ok\",\"service\":\"CampusSphere API Gateway\",\"port\":" + GW_PORT + "}");
+    }
+
+    private void handleMqPublish(HttpExchange ex) throws IOException {
+        addCors(ex);
+        if (!"POST".equals(ex.getRequestMethod())) {
+            respond(ex, 405, "{\"success\":false,\"message\":\"Method not allowed\"}");
+            return;
+        }
+
+        try {
+            byte[] body = ex.getRequestBody().readAllBytes();
+            String json = new String(body, StandardCharsets.UTF_8);
+
+            String topic   = extractJsonValue(json, "topic");
+            String payload = extractJsonValue(json, "payload");
+
+            if (topic != null && payload != null) {
+                mq.publish(topic, payload);
+                respond(ex, 200, "{\"success\":true,\"message\":\"Enqueued in Java MQ\"}");
+            } else {
+                respond(ex, 400, "{\"success\":false,\"message\":\"Missing topic or payload\"}");
+            }
+        } catch (Exception e) {
+            respond(ex, 500, "{\"success\":false,\"message\":\"MQ Error: " + e.getMessage() + "\"}");
+        }
+    }
+
+    private String extractJsonValue(String json, String key) {
+        // Simple regex-less extraction for "key":"value" or "key": "value"
+        String pattern = "\"" + key + "\"\\s*:\\s*\"";
+        int start = json.indexOf(pattern);
+        if (start == -1) return null;
+        start += pattern.length();
+        int end = json.indexOf("\"", start);
+        if (end == -1) return null;
+        return json.substring(start, end);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

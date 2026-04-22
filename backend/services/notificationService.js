@@ -1,8 +1,23 @@
 const Notification = require("../models/Notification");
 const logger = require("../utils/logger");
-const { notificationsQueue } = require("../queues");
 
 const SERVICE = "NotificationService";
+const JAVA_MQ_URL = "http://localhost:8080/mq/publish";
+
+/** 
+ * Helper to notify the Java Message Queue 
+ */
+async function notifyJavaMQ(topic, payload) {
+  try {
+    await fetch(JAVA_MQ_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic, payload: typeof payload === "string" ? payload : JSON.stringify(payload) })
+    });
+  } catch (err) {
+    logger.error(SERVICE, "Failed to bridge to Java MQ", { error: err.message });
+  }
+}
 
 exports.createNotification = async ({
   recipient,
@@ -13,17 +28,15 @@ exports.createNotification = async ({
   meta,
 }) => {
   try {
-    // enqueue notification to be written by worker
     const payload = { recipient, type, title, message, link, meta };
-    try {
-      return await notificationsQueue.add("single", { payload });
-    } catch (qerr) {
-      // fallback to immediate write if queueing fails
-      logger.error(SERVICE, "Queueing notification failed, falling back", {
-        error: qerr.message,
-      });
-      return await Notification.create(payload);
-    }
+    
+    // 1. Save to DB for frontend polling
+    const doc = await Notification.create(payload);
+    
+    // 2. Bridge to Java MQ for system-wide auditing/processing
+    notifyJavaMQ("notification:single", payload);
+    
+    return doc;
   } catch (err) {
     logger.error(SERVICE, "Failed to create notification", {
       error: err.message,
@@ -35,17 +48,16 @@ exports.broadcastNotification = async (recipientIds, payload) => {
   try {
     if (!recipientIds?.length) return;
     const docs = recipientIds.map((rid) => ({ recipient: rid, ...payload }));
-    try {
-      return await notificationsQueue.add("batch", { payload: docs });
-    } catch (qerr) {
-      logger.error(SERVICE, "Queueing broadcast failed, falling back", {
-        error: qerr.message,
-      });
-      await Notification.insertMany(docs);
-      logger.info(SERVICE, "Broadcast sent (direct)", {
-        count: recipientIds.length,
-      });
-    }
+    
+    // 1. Batch insert into DB
+    await Notification.insertMany(docs);
+    
+    // 2. Bridge to Java MQ
+    notifyJavaMQ("notification:broadcast", { count: recipientIds.length, ...payload });
+
+    logger.info(SERVICE, "Broadcast sent (direct)", {
+      count: recipientIds.length,
+    });
   } catch (err) {
     logger.error(SERVICE, "Broadcast failed", { error: err.message });
   }
